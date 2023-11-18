@@ -9,8 +9,9 @@ This project is a simple API for a Stock Transaction Journal, built using Node.j
 ### Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - Node.js
-- npm (Node Package Manager)
+- pnpm / npm (Node Package Manager) - we use `pnpm` for this API
 
 ### Installation
 
@@ -18,28 +19,30 @@ Before you begin, ensure you have the following installed:
 2. Navigate to the project directory.
 3. Install the required dependencies:
 
-    ```bash
-    pnpm install
-    ```
+   ```bash
+   pnpm install
+   ```
 
 ## Scripts in `package.json`
 
 The following scripts are available in the `package.json` file to facilitate development and testing:
 
 - `start`: Runs the compiled server. Use this for production or testing the compiled code.
-    ```bash
-    pnpm start
-    ```
+
+  ```bash
+  pnpm start
+  ```
 
 - `dev`: Runs the server in development mode using `nodemon` and `ts-node`. It automatically restarts the server on file changes.
-    ```bash
-    pnpm run dev
-    ```
+
+  ```bash
+  pnpm run dev
+  ```
 
 - `build`: Compiles TypeScript code to JavaScript in the `dist` directory.
-    ```bash
-    pnpm run build
-    ```
+  ```bash
+  pnpm run build
+  ```
 
 ## Building the Project
 
@@ -47,3 +50,4 @@ To compile TypeScript code to JavaScript, use the build script:
 
 ```bash
 pnpm run build
+```
