@@ -51,3 +51,18 @@ To compile TypeScript code to JavaScript, use the build script:
 ```bash
 pnpm run build
 ```
+
+## Testing the API
+
+Test the API using tools like Postman, Insomnia, or a browser for GET requests. The default URL is `http://localhost:3000/transactions`.
+
+- **POST Requests**: Set the header `Content-Type` to `application/json` and include a JSON body with the transaction data.
+- **GET Requests**: Directly make requests to the endpoint to retrieve all transactions.
+
+## Troubleshooting
+
+If you encounter issues, ensure:
+
+- All dependencies are correctly installed.
+- The TypeScript configuration (`tsconfig.json`) is correct.
+- There are no syntax or typing errors in the TypeScript files.
