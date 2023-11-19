@@ -1,9 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 
-import transactionRouter from './routes/transactions';
+dotenv.config(); // load env vars
 
-dotenv.config();
+import transactionRouter from './routes/transactions';
 
 const app = express();
 const port = process.env.PORT;
