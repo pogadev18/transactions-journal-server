@@ -2,26 +2,26 @@ import express from 'express';
 import type { QueryResult } from 'pg';
 
 import { Transaction } from '../models/transactions';
+import { authenticateToken } from '../middleware/authMiddleware';
 
 import pool from '../db';
 
 const router = express.Router();
 
-// todo: run DB on local machine
-
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
+    const userId: number = req.user.userId;
     const transaction: Transaction = req.body;
     const { date, title, details } = transaction;
 
     const query = `
-      INSERT INTO transactions (date, title, details) 
-      VALUES ($1, $2, $3) 
-      RETURNING *;
+      INSERT INTO transactions (user_id, date, title, details) 
+      VALUES ($1, $2, $3, $4) 
+      RETURNING *;  
     `;
 
-    console.log('query', query);
     const newTransaction: QueryResult<Transaction> = await pool.query(query, [
+      userId,
       date,
       title,
       details,
@@ -41,20 +41,33 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
-  const transactions = await pool.query('SELECT * FROM transactions');
-  res.status(200).send(transactions.rows);
+router.get('/', authenticateToken, async (req, res) => {
+  const userId: number = req.user.userId;
+
+  const transactions = await pool.query(
+    'SELECT * FROM transactions WHERE user_id = $1',
+    [userId]
+  );
+
+  const response = transactions.rows.map((transaction) => ({
+    ...transaction,
+    createdBy: req.user.username,
+  }));
+
+  res.status(200).json(response);
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('id', id);
+    const userId: number = req.user.userId;
 
-    const deleteQuery = 'DELETE FROM transactions WHERE id = $1 RETURNING *;';
+    const deleteQuery =
+      'DELETE FROM transactions WHERE id = $1 AND user_id = $2 RETURNING *;';
+
     const deletedTransaction: QueryResult<Transaction> = await pool.query(
       deleteQuery,
-      [id]
+      [id, userId]
     );
 
     if (deletedTransaction.rowCount === 0) {
@@ -75,7 +88,8 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authenticateToken, async (req, res) => {
+  const userId: number = req.user.userId;
   const { id } = req.params;
   const transaction: Transaction = req.body;
   const { date, title, details } = transaction;
@@ -107,14 +121,17 @@ router.patch('/:id', async (req, res) => {
 
     // Only proceed if there are fields to update
     if (fieldsToUpdate.length > 0) {
+      values.push(id);
+      values.push(String(userId));
+
       const updateQuery = `
         UPDATE transactions
         SET ${setQuery}
-        WHERE id = $${fieldsToUpdate.length + 1}
+        WHERE id = $${fieldsToUpdate.length + 1} AND user_id = $${
+        fieldsToUpdate.length + 2
+      }
         RETURNING *;
       `;
-
-      values.push(id); // Add the id to the values array
 
       const updatedTransaction: QueryResult<Transaction> = await pool.query(
         updateQuery,
