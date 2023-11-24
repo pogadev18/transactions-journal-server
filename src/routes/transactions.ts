@@ -49,12 +49,7 @@ router.get('/', authenticateToken, async (req, res) => {
     [userId]
   );
 
-  const response = transactions.rows.map((transaction) => ({
-    ...transaction,
-    createdBy: req.user.username,
-  }));
-
-  res.status(200).json(response);
+  res.status(200).json(transactions.rows);
 });
 
 router.delete('/:id', authenticateToken, async (req, res) => {
